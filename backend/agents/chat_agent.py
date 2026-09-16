@@ -134,17 +134,18 @@ class ChatAgent:
     def build_contextual_prompt(self, message: str, intent: str) -> str:
         """Add extra context based on detected intent"""
         extra_context = ""
-
+        lower_msg = message.lower()
         if intent == "severity_query":
             for sev in ["critical", "high", "medium", "low"]:
-                if sev in message.lower():
+                if sev in lower_msg:
                     findings = self.get_findings_by_severity(sev)
-                    extra_context = f"\nFull {sev} findings:\n"
+                    parts = [f"\nFull {sev} findings:\n"]
                     for f in findings:
-                        extra_context += (
-                            f"- {f['file']} line {f.get('line','?')}: "
-                            f"{f['issue']}\n  Fix: {f['fix']}\n"
+                        parts.append(
+                            f"- {f.get('file','?')} line {f.get('line','?')}: "
+                            f"{f.get('issue','?')}\n  Fix: {f.get('fix','?')}\n"
                         )
+                    extra_context = "".join(parts)
                     break
 
         elif intent == "file_query":
