@@ -133,15 +133,43 @@ class ChatAgent:
 
     def build_contextual_prompt(self, message: str, intent: str) -> str:
         """Add extra context based on detected intent"""
-        extra_context = ""
-
         if intent == "severity_query":
-            for sev in ["critical", "high", "medium", "low"]:
-                if sev in message.lower():
-                    findings = self.get_findings_by_severity(sev)
-                    extra_context = f"\nFull {sev} findings:\n"
-                    for f in findings:
-                        extra_context += (
+            return self._build_severity_context(message)
+        if intent == "file_query":
+            return self._build_file_context(message)
+        if intent == "pr_query":
+            return self._build_pr_context(message)
+        if intent == "specific_finding":
+            return self._build_specific_finding_context(message)
+        return ""
+
+    def _build_severity_context(self, message: str) -> str:
+        """Construct context for severity queries"""
+        extra_context = ""
+        for sev in ["critical", "high", "medium", "low"]:
+            if sev in message.lower():
+                findings = self.get_findings_by_severity(sev)
+                extra_context = f"\nFull {sev} findings:\n"
+                for f in findings:
+                    extra_context += f"- {f}\n"
+                break
+        return extra_context
+
+    def _build_file_context(self, message: str) -> str:
+        """Construct context for file queries (placeholder implementation)"""
+        # Real implementation would locate files referenced in the message
+        return ""
+
+    def _build_pr_context(self, message: str) -> str:
+        """Construct context for PR queries (placeholder implementation)"""
+        # Real implementation would fetch PR details based on the message
+        return ""
+
+    def _build_specific_finding_context(self, message: str) -> str:
+        """Construct context for specific finding queries (placeholder implementation)"""
+        # Real implementation would extract finding identifiers from the message
+        return ""
+
                             f"- {f['file']} line {f.get('line','?')}: "
                             f"{f['issue']}\n  Fix: {f['fix']}\n"
                         )
