@@ -62,7 +62,15 @@ def pr_agent_node(state: ReviewState) -> ReviewState:
     print(f"\nOpening Issues...")
     for finding in issue_findings:
         print(f"  Issue: {finding['file']} line {finding['line']}...")
-        url = handler.create_issue_for_finding(state["repo_url"], finding)
+        repo_url = state.get("repo_url", "")
+        if not (repo_url.startswith("http://") or repo_url.startswith("https://")):
+            print("  [WARN] Invalid repository URL, skipping issue creation.")
+            continue
+        try:
+            url = handler.create_issue_for_finding(repo_url, finding)
+        except Exception as e:
+            print(f"  [ERROR] Failed to create issue: {e}")
+            continue
         if url:
             pr_urls.append({
                 "type": "issue",
