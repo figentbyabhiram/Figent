@@ -124,10 +124,13 @@ class ChatAgent:
     
     def detect_intent(self, message: str) -> str:
         """Detect what the user is asking about"""
-        prompt = INTENT_PROMPT.format(message=message)
+        import json
+        # Sanitize user input to mitigate prompt injection risks
+        safe_message = json.dumps(message)[1:-1]
+        prompt = INTENT_PROMPT.format(message=safe_message)
         intent = safe_llm_call(self.llm, prompt).strip().lower()
         valid_intents = ["summary", "specific_finding", "file_query",
-                        "severity_query", "pr_query", "explanation", "general"]
+                         "severity_query", "pr_query", "explanation", "general"]
         return intent if intent in valid_intents else "general"
 
 
