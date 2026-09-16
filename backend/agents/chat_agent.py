@@ -215,13 +215,10 @@ class ChatAgent:
 
         extra_context = self.build_contextual_prompt(user_message, intent)
 
-        messages = [
-            {"role": "system", "content": self.system_prompt + extra_context}
-        ]
-
-        for msg in self.history:
-            messages.append(msg)
-
+        messages = [{"role": "system", "content": self.system_prompt}]
+        if extra_context:
+            messages.append({"role": "system", "content": extra_context})
+        messages.extend(self.history)
         messages.append({"role": "user", "content": user_message})
 
         try:
